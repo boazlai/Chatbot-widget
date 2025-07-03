@@ -1,0 +1,846 @@
+{
+  "name": "ITS Main",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=# ITS HKU Assistant Role Definition\n\n## Role\nYou are an official assistant for Information Technology Services (ITS) at The University of Hong Kong (HKU).\n\n## Core Principles\n1. **Strict Tool Reliance**\n   - Only use information from these authorized sources:\n     - `ITSWebSearch` (primary)\n     - `FindAnswerITS` (authoritative verification)\n     - `ITS Service and Location` (contact details)\n   - Never rely on pre-existing knowledge about ITS HKU\n\n2. **Accuracy & Transparency**\n   - Clearly label all AI-generated content at the end of output\n   - Advise verification for critical information at the end of output\n   - Never guess or assume information\n\n## Workflow Instructions\n### Standard Query Handling\n1. **Initial Search**\n   - First use `ITSWebSearch` for most queries\n   - Format: `{{ $now }}` for date references\n\n2. **Verification & Supplementation**\n   - Cross-check with `FindAnswerITS` for:\n     - Policy confirmation\n     - Service details\n     - Official procedures\n\n3. **Special Cases**\n   - **Chi Wah Study Rooms:** Directly use `Check Chi Wah Tool`\n   - **User Categories:** Clarify if status (staff/student) affects access\n   - **HKU SPACE Students:** Note access limitations upfront when relevant\n\n## Output Standards\n### Content Requirements\n- **Relevance:** Strictly ITS-related queries only\n- **Detail Level:** Comprehensive\n- **Sources:**\n  - Use verbatim phrasing when possible\n  - Always include source links\n  - Summarize only when necessary for clarity\n\n### Formatting Guidelines\n1. **Text Styling**\n   - **Bold** for key terms/actions\n   - _Italics_ for examples/emphasis\n\n2. **Structural Elements**\n   - Ordered lists for steps/sequences\n   - Unordered lists for features/options\n   - Tables for comparisons/data\n\n3. **Visual Aids**\n   - Include diagrams/images for:\n     - Step-by-step guides\n     - Conceptual explanations\n     - Comparative analysis\n\n### Mandatory Inclusions\n1. **Disclaimers**\n   - \"AI-generated content - please verify critical information\"\n   - Contact options from `ITS Service and Location`\n\n2. **Action Items**\n   - Provide clear next steps\n   - Never suggest \"wait for updates\"\n   - Offer email alternative when appropriate\n\n## Special Procedures\n### Staff Connection Protocol\n**Trigger Phrases:**\n- \"talk to staff\"\n- \"speak to a person\"\n- \"contact ITS directly\"\n\n**Process Flow:**\n1. Confirmation Prompt:\n\"To connect you with ITS staff, please reply 'yes' to confirm. Otherwise, ignore this message.\"\n\n2. Response Handling:\n- \"yes\" → Output: `UserWantFindStaff_____`\n- Any cancellation → Output: `UserWantCancelFindStaff_____`\n\n**Rules:**\n- Never skip confirmation\n- No additional text during process\n- Trigger when detecting user frustration"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1812,
+        -100
+      ],
+      "id": "2c85dee2-e5d9-4fc0-a739-ef7f45b24aa7",
+      "name": "AI Agent",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4.1",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        120
+      ],
+      "id": "73c63dc9-f8af-4670-b696-0b9d1f0445db",
+      "name": "Azure OpenAI Chat Model",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "FHW2LLzwvokxrwBM",
+          "name": "Boaz"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        120
+      ],
+      "id": "ca268fcb-b15e-4f3b-a5f8-a9f7d11dffc7",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "description": "Use the tool to think about something. It will not obtain new information or change the database, but just append the thought to the log. Use it when complex reasoning or some cache memory is needed.\n\nCall this tool to check if you have followed all the instructions as specified in the tools."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        120
+      ],
+      "id": "6cba4a72-cd24-4e40-b3e5-600e8bb4098a",
+      "name": "Think"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1480,
+        120
+      ],
+      "id": "41b3ed39-e988-4020-9322-23fa3ca54bba",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "sessionId"
+            },
+            {
+              "name": "chatInput"
+            },
+            {
+              "name": "channel"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        920,
+        0
+      ],
+      "id": "87fa8439-2ae8-4d96-bc2e-0580df9adc7b",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        700,
+        -200
+      ],
+      "id": "6bf11998-970d-4aa3-8481-006dcfb20809",
+      "name": "When chat message received",
+      "webhookId": "b6f40509-e254-4307-aa03-cd483aca0f81"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "363eb11f-55e3-4f7e-b5ef-ee988f631d4e",
+              "name": "output",
+              "value": "={{ $json.output.split('####NOTE####')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "14f32131-67b8-45c3-9a30-a6f5cd26ff88",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "9077bddd-f210-44af-8914-a9771545023b",
+              "name": "channel",
+              "value": "={{ $json.channel }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3080,
+        0
+      ],
+      "id": "2ff19b81-a8b2-44c3-8071-6b9b86312130",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Web search tools for ITS website.\n\nUse search term for searching\n\n\nUse search term for query",
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"{{$fromAI('QueryString','Query String for general use','string')}}\",\n  \"search_depth\": \"advanced\",\n  \"max_results\": 7,\n  \"include_domains\": [\n    \"https://its.hku.hk/\"\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1960,
+        120
+      ],
+      "id": "81516610-3373-43b1-aa5a-0032c0957c3a",
+      "name": "ITSWebSearch",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "xc1iMXw9K2rCGD9Q",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool for Find Answer function. \nIt includes some information not published on the web, supplementary information.\n*Always* call this tool to check if there is any additional information for your answer.\nUse search term for the query",
+        "workflowId": {
+          "__rl": true,
+          "value": "yIOerK0rID9kDRhk",
+          "mode": "list",
+          "cachedResultName": "ITSSearch"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        120
+      ],
+      "id": "c5ccb4f0-0285-4dd2-9eae-5a949f992c1a",
+      "name": "FindAnswerITS"
+    },
+    {
+      "parameters": {
+        "description": "Call this when user want to send email to ITS to ask question.\n\nAsk the user for his email address and question for ITS staff to reply to him.\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "9uW5V8WTozCtrpMI",
+          "mode": "list",
+          "cachedResultName": "SendEmail"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('content', `##Content format\nUser's email:\n[user's email]\n\nFrom ITS Chatbot:\n[user's question]`, 'string') }}",
+            "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('subject', `##Subject format\nQuestion about[summary of user's question]`, 'string') }}",
+            "userEmailAddress": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('userEmailAddress', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "userEmailAddress",
+              "displayName": "userEmailAddress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2200,
+        120
+      ],
+      "id": "92e95550-35f3-4a87-840a-343a01542a7e",
+      "name": "Email ITS Staff Tool"
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.output }}",
+        "destinationKey": "output",
+        "options": {
+          "openLinksInNewWindow": true,
+          "simplifiedAutoLink": true,
+          "emoji": true,
+          "headerLevelStart": 1,
+          "tables": false
+        }
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        3300,
+        0
+      ],
+      "id": "caa90ee9-53bf-4030-8959-6094acb789f8",
+      "name": "Markdown",
+      "disabled": true,
+      "notes": "Always use **VISIBLE border** for tables."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4e14e19a-c6d8-485a-893f-ddf967a86d49",
+              "name": "channel",
+              "value": "={{ $json.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "30562546-c878-428b-9b4f-f5707b1affda",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "8a8c56cf-d719-4fe7-b708-0aa22a155fa5",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1140,
+        -100
+      ],
+      "id": "9a24c11c-02f4-4616-bb90-304a5aab64d9",
+      "name": "set channel"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "31c1ed81-9210-4e1e-bfa5-ab82e07dd557",
+              "name": "channel",
+              "value": "chatInput",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        920,
+        -200
+      ],
+      "id": "3cb13391-2b1e-4bdc-b301-e4140ed2d53f",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to get links, phone number, physical location and opening hour of ITS services.\n\n##reminder\nServiceDesk's live chat is not functional right now, hide from user.",
+        "workflowId": {
+          "__rl": true,
+          "value": "BLSvDl0pz7UhgZ43",
+          "mode": "list",
+          "cachedResultName": "ITS contact and location tool"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2360,
+        120
+      ],
+      "id": "48e3469e-010a-4cd5-b2e7-d776ef070485",
+      "name": "ITS Service Contact and Location Tool"
+    },
+    {
+      "parameters": {
+        "description": "Call this to get printing related information\ninformation include printer models, supported printing size, printer locations, supported platforms, printing charges, data retention policy and printing unit purchase methods.",
+        "workflowId": {
+          "__rl": true,
+          "value": "qndoSLqcz8GAumLl",
+          "mode": "list",
+          "cachedResultName": "Printing info"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2520,
+        120
+      ],
+      "id": "c6b425da-6331-41e6-af1b-aaa984875949",
+      "name": "Printer Info Tool"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b87202ca-1e81-4778-b1ac-da259420f752",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "UserWantFindStaff_____",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "d1629864-95b3-49aa-bd7f-04125855b9f5",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "UserWantCancelFindStaff_____",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2640,
+        -100
+      ],
+      "id": "adbab742-b397-42b8-95e4-f01b61dc63a9",
+      "name": "If find staff or cancel"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "363eb11f-55e3-4f7e-b5ef-ee988f631d4e",
+              "name": "output",
+              "value": "={{ $json.output.split('####NOTE####')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "14f32131-67b8-45c3-9a30-a6f5cd26ff88",
+              "name": "sessionId",
+              "value": "={{ $('set channel').item.json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "9077bddd-f210-44af-8914-a9771545023b",
+              "name": "channel",
+              "value": "={{ $('set channel').item.json.channel }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2860,
+        -200
+      ],
+      "id": "05070e81-2841-432e-87c9-051cb743ae06",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "workbook": {
+          "__rl": true,
+          "value": "01T7LE46MAGX7S7XBVZBDYC3V7LK2V6EYG",
+          "mode": "list",
+          "cachedResultName": "ITS_Chatbot_log",
+          "cachedResultUrl": "https://hkuhk-my.sharepoint.com/personal/boazits_hku_hk/_layouts/15/Doc.aspx?sourcedoc=%7B2FFF3580-35DC-47C8-816E-BF5AB55F1306%7D&file=ITS_Chatbot_log.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{4EF68946-ABD8-4587-932D-B1AF071AA8B0}",
+          "mode": "list",
+          "cachedResultName": "reply",
+          "cachedResultUrl": "https://hkuhk-my.sharepoint.com/personal/boazits_hku_hk/_layouts/15/Doc.aspx?sourcedoc=%7B2FFF3580-35DC-47C8-816E-BF5AB55F1306%7D&file=ITS_Chatbot_log.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=reply!A1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "{71FA20A6-3973-4E99-9CFA-AE2E186B887D}",
+          "mode": "list",
+          "cachedResultName": "Table2",
+          "cachedResultUrl": "https://hkuhk-my.sharepoint.com/personal/boazits_hku_hk/_layouts/15/Doc.aspx?sourcedoc=%7B2FFF3580-35DC-47C8-816E-BF5AB55F1306%7D&file=ITS_Chatbot_log.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=Sheet1!D2:E3"
+        },
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "sessionId",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.sessionId }}"
+            },
+            {
+              "column": "output",
+              "fieldValue": "={{$json.output}}"
+            },
+            {
+              "column": "chatInput",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.chatInput }}"
+            },
+            {
+              "column": "channel",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.channel }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2.1,
+      "position": [
+        2860,
+        0
+      ],
+      "id": "4aeb1b42-1cbc-4382-9655-b00b0a11ac48",
+      "name": "Microsoft Excel 365",
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "vESHj6bZpMWo79Va",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to get the study room availability.\n\n\n\nAlways provide this booking link to user: https://lib.hku.hk/hkulauth/legacy/authMain?uri=https://booking.lib.hku.hk/getpatron.aspx\n\n##Rule\nPriorities returning study rooms that are available\n\n##How to read the data\nExample:\nStudy Room 6 | 17:00-18:00 | Available | , this means study room 6 is available at 1700-1800\n\nStudy Room 10 | 14:00-15:00 | Booked | , this means study room 10 is not available at 1400-1500",
+        "workflowId": {
+          "__rl": true,
+          "value": "ITBVFuaA5balIoXP",
+          "mode": "list",
+          "cachedResultName": "GetRoomAvailability"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "time": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('time', `Input the time you want to check.\nCheck today's date before inputting\n\n\nOnly input in this format:\nYYYY-MM-DD`, 'string') }}",
+            "location": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('location', `in put the location\nChoose from the list below:\n- Chi Wah\n- Dental Library\n- Law Library\n- Music Library\n- Medical Library (Single)\n- Medical Library (Discussion)\n- Main Library\n\n`, 'string') }}"
+          },
+          "matchingColumns": [
+            "freetext"
+          ],
+          "schema": [
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "location",
+              "displayName": "location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1840,
+        120
+      ],
+      "id": "a0579b9c-6c65-4f13-9367-55201cb5cc99",
+      "name": "Check Room Availability"
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "sessionId": "session_jdhvg9avonm",
+          "chatInput": "What are the printing costs at HKU? ",
+          "channel": "chatTrigger"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If find staff or cancel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "set channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ITSWebSearch": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FindAnswerITS": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email ITS Staff Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set channel": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "set channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ITS Service Contact and Location Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Printer Info Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If find staff or cancel": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Microsoft Excel 365",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Microsoft Excel 365": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Room Availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cdcc9964-f8a9-420e-86e5-7621a861b0bf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d18a2b686edcc77bb0a27337558b7504a2a88fa572b5e4ab60b7b0e419851af1"
+  },
+  "id": "2r6sQSzeaxbuqX8a",
+  "tags": []
+}

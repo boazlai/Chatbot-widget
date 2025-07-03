@@ -1,0 +1,607 @@
+{
+  "name": "Pair up",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -500,
+        -300
+      ],
+      "id": "af2307c7-50c1-41f2-9691-404333addf57",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "19d40982-a5b1-492a-94a9-a3ccebf0b458",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -60,
+        -300
+      ],
+      "id": "0d111d34-a0c3-4db2-a419-fc6f0c2dd4b5",
+      "name": "if have ppl waiting"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "26ebe30b-fee6-45a9-8cbd-fd9558fdbd2b",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        380,
+        -125
+      ],
+      "id": "e5c9e054-e915-43be-ac68-2f816e4677ef",
+      "name": "If have active staff"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ccdf5c38-128d-4de9-b69d-9654d1e0ffd1",
+              "name": "sessionId",
+              "value": "={{ $('find who waiting').item.json.userChatId }}",
+              "type": "string"
+            },
+            {
+              "id": "1de77e3d-a255-4737-9210-5afc64ded795",
+              "name": "channel",
+              "value": "={{ $('find who waiting').item.json.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "ac8dec06-3c35-44bf-925d-6707797d87cb",
+              "name": "humanid",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "c1d50929-39d7-48f4-95d0-0c8189d9b2aa",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        820,
+        -325
+      ],
+      "id": "ea7c7276-c267-49ee-9217-a6a49367342b",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "query",
+        "container": {
+          "__rl": true,
+          "value": "humanSupportRequests",
+          "mode": "list",
+          "cachedResultName": "humanSupportRequests"
+        },
+        "query": "SELECT Top 1 * FROM c WHERE c.flowId='library' and c.status='waiting' ORDER BY c._ts ASC",
+        "simple": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        -280,
+        -300
+      ],
+      "id": "001c8270-dbfd-4d33-8560-f4dbc3f1075b",
+      "name": "find who waiting",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "query",
+        "container": {
+          "__rl": true,
+          "value": "staff",
+          "mode": "list",
+          "cachedResultName": "staff"
+        },
+        "query": "SELECT TOP 1 c.id FROM c WHERE c.staffId = 'staffstatus' AND (c.status='active' or c.id='0') order by c._ts desc\n\n",
+        "simple": false,
+        "options": {
+          "queryOptions": {}
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -125
+      ],
+      "id": "2410a490-7319-4b28-a1ee-dc78e344e447",
+      "name": "Find which staff active",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "create",
+        "container": {
+          "__rl": true,
+          "value": "staff",
+          "mode": "list",
+          "cachedResultName": "staff"
+        },
+        "customProperties": "={\n  \"id\": \"{{ $json.id }}\",\n  \"staffId\": \"staffstatus\",\n  \"status\": \"connected\"\n}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        600,
+        -325
+      ],
+      "id": "9fd6bed2-22bf-458f-b63a-220e32ef3d2b",
+      "name": "change staff status",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "create",
+        "container": {
+          "__rl": true,
+          "value": "chatMessageWaiting",
+          "mode": "list",
+          "cachedResultName": "chatMessageWaiting"
+        },
+        "customProperties": "={\n\t\"id\": {{ JSON.stringify(Date.now().toString() + Math.random().toString(36).substr(2, 9)) }},\n    \"sessionId\": \"{{ $json.userChatId }}\",\n    \"output\": \"Connected to Staff: {{ $json.humanChatId }}\"\n} \n",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        1480,
+        -500
+      ],
+      "id": "4ee3f9b9-f6cf-44ef-9c19-48f02b8efdae",
+      "name": "tell user they connected",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.id }}",
+        "text": "Someone is waiting",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        820,
+        -120
+      ],
+      "id": "62318a37-3ffb-496d-93c9-1b7bb17ded77",
+      "name": "Telegram",
+      "webhookId": "35070c06-3471-45a1-b09e-736262e163ce",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZE9wfX5obuQ89BSd",
+          "name": "Boaz Telegram "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.humanChatId }}",
+        "text": "=You are connected to User: {{ $json.userChatId }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1480,
+        -300
+      ],
+      "id": "72ef3f51-9809-4185-9da2-69bd67313828",
+      "name": "Tell staff they are connected",
+      "webhookId": "35070c06-3471-45a1-b09e-736262e163ce",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZE9wfX5obuQ89BSd",
+          "name": "Boaz Telegram "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1040,
+        -400
+      ],
+      "id": "f3945693-a4f0-423f-ba81-d2e7200abc51",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "create",
+        "container": {
+          "__rl": true,
+          "value": "=humanSupportRequests",
+          "mode": "id"
+        },
+        "customProperties": "={\n\t\"id\": \"{{ $json.userChatId }}\",\n    \"userChatId\": \"{{ $json.userChatId }}\",\n    \"content\": null,\n    \"requestTime\": \"{{ $json.requestTime }}\",\n    \"status\": \"active\",\n    \"channel\": \"{{ $json.channel }}\",\n    \"humanChatId\": \"{{ $json.humanid }}\",\n    \"flowId\": \"library\"\n} ",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        -400
+      ],
+      "id": "daee7001-3f97-4514-a00a-7ff8b867103b",
+      "name": "Pair up",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the previous input items\nconst items = $input.all();\n\n// Map through each item and add a position number\nconst newItems = items.map((item, index) => {\n  // Create a shallow copy of the item's JSON data\n  const newItem = { ...item.json };\n  \n  // Add the position number (starting from 1)\n  newItem.position = index + 1;\n  \n  // Return the new item structure\n  return {\n    json: newItem,\n    // Include other item properties if needed\n    binary: item.binary,\n    pairedItem: item.pairedItem\n  };\n});\n\n// Return the modified items\nreturn newItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        820,
+        75
+      ],
+      "id": "4782f418-9319-40d2-8306-9e17093c7547",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "create",
+        "container": {
+          "__rl": true,
+          "value": "chatMessageWaiting",
+          "mode": "list",
+          "cachedResultName": "chatMessageWaiting"
+        },
+        "customProperties": "={\n\t\"id\": {{ JSON.stringify(Date.now().toString() + Math.random().toString(36).substr(2, 9)) }},\n    \"sessionId\": \"{{ $json.id }}\",\n    \"output\": \"Queue position: {{ $json.position }}\"\n} \n",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        75
+      ],
+      "id": "f66957de-0811-45aa-8070-62c1526759b8",
+      "name": "tell user their queue position",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "query",
+        "container": {
+          "__rl": true,
+          "value": "staff",
+          "mode": "list",
+          "cachedResultName": "staff"
+        },
+        "query": "SELECT c.id FROM c WHERE c.status='offline'",
+        "simple": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        600,
+        -125
+      ],
+      "id": "b8abd3b4-800d-436c-bd53-dd0d6a36abe5",
+      "name": "Find offline staff",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "query",
+        "container": {
+          "__rl": true,
+          "value": "humanSupportRequests",
+          "mode": "list",
+          "cachedResultName": "humanSupportRequests"
+        },
+        "query": "SELECT c.id FROM c WHERE c.status='waiting' and c.flowId='library' ORDER BY c._ts ASC",
+        "simple": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        600,
+        75
+      ],
+      "id": "deb9386a-b51b-43cb-a009-ccdbac1124d8",
+      "name": "Find waiting user",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "find who waiting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if have ppl waiting": {
+      "main": [
+        [
+          {
+            "node": "Find which staff active",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If have active staff": {
+      "main": [
+        [
+          {
+            "node": "change staff status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find offline staff",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Find waiting user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "find who waiting": {
+      "main": [
+        [
+          {
+            "node": "if have ppl waiting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find which staff active": {
+      "main": [
+        [
+          {
+            "node": "If have active staff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "change staff status": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Pair up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pair up": {
+      "main": [
+        [
+          {
+            "node": "tell user they connected",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tell staff they are connected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "tell user their queue position",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find offline staff": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find waiting user": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7dd3c4a7-e5ec-4668-8ca3-48d0445d64f7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d18a2b686edcc77bb0a27337558b7504a2a88fa572b5e4ab60b7b0e419851af1"
+  },
+  "id": "LzQhEnydSU7LVoAd",
+  "tags": []
+}

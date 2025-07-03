@@ -1,0 +1,2822 @@
+{
+  "name": "AI Human Main (prod)",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "2r6sQSzeaxbuqX8a",
+          "mode": "list",
+          "cachedResultName": "ITS Main"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "chatInput": "={{ $json.chatInput }}",
+            "channel": "={{ $json.channel }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "chatInput",
+              "displayName": "chatInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1880,
+        825
+      ],
+      "id": "351fa322-5b9e-41c5-b09a-d09e5ba8b093",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.chatInput }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "id": "3bac7e19-30ae-4c35-a843-99b40d4af0c5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0acdbe29-95bc-4afc-8e3a-f163cacd0310",
+                    "leftValue": "={{ $json.files[0].fileType=='audio'}}",
+                    "rightValue": "\"audio\"",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -100,
+        625
+      ],
+      "id": "41093c62-add4-402f-8ec8-b63bab747ae2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ai-icdev-its-playground-swc.cognitiveservices.azure.com/openai/deployments/whisper/audio/translations?api-version=2024-06-01",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "whisper-1"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        120,
+        725
+      ],
+      "id": "bc450689-8bcc-41fd-bb59-e3eabc6597f1",
+      "name": "transcribe-whisper",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "OfTF2TLC9gTJMSTI",
+          "name": "Voice message"
+        }
+      },
+      "notes": "Bearer 9I1BiCtJcqsgO4D2GpDZcfNSGOMpEC627HHTPNaLZU7IQ4wOciA3JQQJ99BCACHYHv6XJ3w3AAAAACOGiMZc"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3de5b207-09af-4d1d-9e68-db967a9425ca",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "d9177c28-49ec-477e-82e7-02eac79891e4",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "ea60d31b-d2c6-4b98-91db-fad6c775e08b",
+              "name": "=channel",
+              "value": "={{ $json.channel }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        620
+      ],
+      "id": "c053630f-55f5-45c6-982c-ac20074c3f16",
+      "name": "Interacing"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "64cc749e-d5bc-49eb-ad94-86f5a5e6f7d4",
+              "name": "chatInput",
+              "value": "=[transcribed] {{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "a782bd55-e9cd-41d2-b6c9-356ecfe8aab4",
+              "name": "channel",
+              "value": "chatTrigger",
+              "type": "string"
+            },
+            {
+              "id": "377862f5-692c-4dc8-b3ce-0c0e82c74aa2",
+              "name": "sessionId",
+              "value": "={{ $('Switch').item.json.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        340,
+        725
+      ],
+      "id": "5eb5ce77-c5c4-474e-a3ab-bac0549a2ae7",
+      "name": "transcribed text"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -980,
+        320
+      ],
+      "id": "396d0a62-2122-4293-9c8d-60c68527fb9a",
+      "name": "Telegram Trigger",
+      "webhookId": "bf1f3e84-f093-4902-9450-deed9cb05ac3",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZE9wfX5obuQ89BSd",
+          "name": "Boaz Telegram "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "62615fe3-f2d4-4e85-ac0f-6e6fb1fc73f1",
+              "name": "sessionId",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "c88e5b2d-2632-4f4d-8778-6e52705abb2f",
+              "name": "chatInput",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "103dbac7-581b-46ba-95f4-6cd80497d6d5",
+              "name": "channel",
+              "value": "telegram",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -440,
+        580
+      ],
+      "id": "cb57661b-889a-4dae-b2a0-7fbc686defa5",
+      "name": "Set Channel telegram"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c64e4361-7d07-481b-a02e-75e9723c9460",
+              "name": "channel",
+              "value": "chatTrigger",
+              "type": "string"
+            },
+            {
+              "id": "f1a997cf-227e-4e9b-9742-a2685a1664a3",
+              "name": "chatInput",
+              "value": "={{ $json.message || $json.chatInput }} ",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -540,
+        1040
+      ],
+      "id": "559d4a24-9541-4e0f-b2f2-89e5bf8700b1",
+      "name": "Set Channel chatTrigger"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7638d27b-818d-47b9-a99c-ce022dfd2618",
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "telegram",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "telegram"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.channel }}",
+                    "rightValue": "chatTrigger",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3da71e63-b5cd-4455-bcd1-a19349b5adeb"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "chatTrigger"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2760,
+        775
+      ],
+      "id": "e67f880c-77f2-4c65-9b95-f3f717175398",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.sessionId }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2980,
+        650
+      ],
+      "id": "9e5ddeaa-22fd-4dcf-b832-620ecda07bac",
+      "name": "Telegram",
+      "webhookId": "c13f3b03-e221-427c-a0af-01248962ee33",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZE9wfX5obuQ89BSd",
+          "name": "Boaz Telegram "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        2980,
+        875
+      ],
+      "id": "7bf8131c-c3d1-46d3-86fa-74755fcdeff7",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "05d38dd3-a2d5-49a0-9f58-9eff7ee6ecb1",
+              "name": "output",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "17d5ae9f-2205-4e7d-80d3-9822dbb977eb",
+              "name": "channel",
+              "value": "={{ $json.channel }}",
+              "type": "string"
+            },
+            {
+              "id": "efec4351-140a-46e1-aed7-89a9fbba0068",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2540,
+        775
+      ],
+      "id": "6835bcd1-cc52-4b9a-a8ae-9421a9435e3d",
+      "name": "Gather Result"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "query",
+        "container": {
+          "__rl": true,
+          "value": "humanSupportRequests",
+          "mode": "list",
+          "cachedResultName": "humanSupportRequests"
+        },
+        "query": "SELECT c.channel as userChannel, c.userChatId as activeHumanRequestChatId, c.humanChatId as activeHumanChannel FROM c WHERE c.flowId = 'library' AND (c.status='active' or c.id='0') order by c._ts desc\n\n",
+        "simple": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        780,
+        620
+      ],
+      "id": "9b916bd1-cbfa-4873-8705-72d160eb13a4",
+      "name": "Azure Cosmos DB",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "active",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8e7d371b-01e5-4b2d-a1f4-7ab1206fafd9"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "human Agent"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9724e26d-6cb7-4e5f-b5c3-4d7ed7f42ce9",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "notFound",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "GenAI"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none",
+          "allMatchingOutputs": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1220,
+        620
+      ],
+      "id": "5d4d4598-6012-49fa-bd2b-cb1daefc1e79",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8286b059-4556-47be-ad2a-464c951728a4",
+              "name": "output",
+              "value": "sent",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3200,
+        650
+      ],
+      "id": "d94e018f-3558-4c11-9c2f-9540f1e61483",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fd35ec17-60f6-425b-8269-b73242ad3041",
+              "name": "sessionId",
+              "value": "={{ (  $json.sessionId== $json.humanChatId ) ? $json.userChatId : $json.humanChatId  }}",
+              "type": "string"
+            },
+            {
+              "id": "040d86bf-8464-49fc-b2ff-66c6bd6eb858",
+              "name": "output",
+              "value": "={{ $('Interacing').first().json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "79002fa5-a2fc-440a-b337-ba9ffb35ee2c",
+              "name": "=channel",
+              "value": "={{ ($json.sessionId==$json.humanChatId) ?  $json.channel : 'telegram'  }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2100,
+        375
+      ],
+      "id": "92c6fbf7-fb29-41c6-ad88-defaed0ea93f",
+      "name": "SetHumanAgentReply"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        980,
+        1020
+      ],
+      "id": "53343a74-f2fb-4e7d-9519-c3e2f7ec244b",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "query",
+        "container": {
+          "__rl": true,
+          "value": "chatMessageWaiting",
+          "mode": "list",
+          "cachedResultName": "chatMessageWaiting"
+        },
+        "query": "select c.output, c.id, c.sessionId from c where c.sessionId=$1 order by c._ts ASC",
+        "simple": false,
+        "options": {
+          "queryOptions": {
+            "queryParameters": "={{ $json.sessionId }}"
+          }
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        1025
+      ],
+      "id": "9ca422e6-82df-4e56-a218-aa6ca3d927e0",
+      "name": "Get message waiting",
+      "alwaysOutputData": true,
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8dd7c599-a322-430f-be2e-cd1d51794ab8",
+              "leftValue": "={{ Object.keys($json).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        120,
+        1025
+      ],
+      "id": "05df06aa-405a-4c40-9965-55296ff34398",
+      "name": "HasMessage"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "de29fa0b-7ad3-4ca8-9fdb-ef6948743ce8",
+              "name": "output",
+              "value": "={{ $('HasMessage').item.json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        780,
+        900
+      ],
+      "id": "e6d607a1-2d59-4b59-8384-c533c8ba6213",
+      "name": "Output message"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6c17effc-0d17-4b91-a3a8-9beb4c9c1b93",
+              "name": "output",
+              "value": "=-",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        1125
+      ],
+      "id": "14d1725e-cbe6-4222-8153-7919e3ffbf1a",
+      "name": "Output NoMessage"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "delete",
+        "container": {
+          "__rl": true,
+          "value": "chatMessageWaiting",
+          "mode": "list",
+          "cachedResultName": "chatMessageWaiting"
+        },
+        "item": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "additionalFields": {
+          "partitionKey": "={{ $json.sessionId }}"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        560,
+        900
+      ],
+      "id": "55ea82f7-39bb-4b36-907d-065b97ac8c07",
+      "name": "Delete the message",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "create",
+        "container": {
+          "__rl": true,
+          "value": "chatMessageWaiting",
+          "mode": "list",
+          "cachedResultName": "chatMessageWaiting"
+        },
+        "customProperties": "={\n\t\"id\": {{ JSON.stringify(Date.now().toString() + Math.random().toString(36).substr(2, 9)) }},\n    \"sessionId\": {{ JSON.stringify($json.sessionId) }},\n    \"output\": {{ JSON.stringify($json.output) }}\n} \n",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        2980,
+        400
+      ],
+      "id": "60f4c7d8-e681-41ec-a773-5d08323854d2",
+      "name": "Save the message for polling",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "87b9c96b-5c77-4baa-a022-358b29a038d8",
+              "leftValue": "={{ $json.channel }}",
+              "rightValue": "chatTrigger",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2320,
+        375
+      ],
+      "id": "ffc6f474-8d09-425e-a3a4-8decb6225b84",
+      "name": "If message to chatTrigger"
+    },
+    {
+      "parameters": {
+        "content": "## Handle message polling for \"human to chatTrigger\"\n",
+        "height": 400,
+        "width": 1320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        880
+      ],
+      "id": "463e0970-4b42-4174-b9ea-3676db897a60",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -760,
+        1040
+      ],
+      "id": "41bade23-5946-49a8-95d9-cf3bde5fb8b2",
+      "name": "When chat message received",
+      "webhookId": "40bf3220-f565-4114-a8fc-0a664ddd562b"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text.trim() }}",
+                    "rightValue": "/active",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "3a6e317e-b148-4db1-abdc-6ea36f492bb6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "active"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "24a09fac-dcbc-4c34-b126-8dc6891a4d38",
+                    "leftValue": "={{ $json.message.text.trim() }}",
+                    "rightValue": "/off",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "offline"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "4872aa16-f235-4533-8930-ff9f189a37ad",
+                    "leftValue": "={{ $json.message.text.trim() }}",
+                    "rightValue": "/stop",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "stop"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -760,
+        300
+      ],
+      "id": "f2c9d5d7-b72b-4488-9276-a11ab154e452",
+      "name": "Switch3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "62615fe3-f2d4-4e85-ac0f-6e6fb1fc73f1",
+              "name": "sessionId",
+              "value": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+              "type": "string"
+            },
+            {
+              "id": "c88e5b2d-2632-4f4d-8778-6e52705abb2f",
+              "name": "chatInput",
+              "value": "={{ $('Telegram Trigger').item.json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "103dbac7-581b-46ba-95f4-6cd80497d6d5",
+              "name": "channel",
+              "value": "telegram",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        340,
+        425
+      ],
+      "id": "6b99e9b3-8da4-4bdb-9aa9-ea24c8fbbf03",
+      "name": "Set Channel telegram1"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "create",
+        "container": {
+          "__rl": true,
+          "value": "staff",
+          "mode": "list",
+          "cachedResultName": "staff"
+        },
+        "customProperties": "={\n    \"id\": \"{{ $json.message.from.id }}\",\n    \"staffId\": \"staffstatus\",\n    \"status\": \"active\"\n} ",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        120
+      ],
+      "id": "dace55b3-b992-4350-b047-56a54b770def",
+      "name": "active",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "create",
+        "container": {
+          "__rl": true,
+          "value": "staff",
+          "mode": "list",
+          "cachedResultName": "staff"
+        },
+        "customProperties": "={\n    \"id\": \"{{ $json.message.from.id }}\",\n    \"staffId\": \"staffstatus\",\n    \"status\": \"offline\"\n} ",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        280
+      ],
+      "id": "9c78e1e7-94ce-4a54-bd46-718d1974b3c3",
+      "name": "offline",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5d5f032d-eeed-477a-8931-6659147446f4",
+              "leftValue": "={{ $json.output.trim() }}",
+              "rightValue": "/stop",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2540,
+        325
+      ],
+      "id": "9b0e6065-9c77-437b-9d72-5d646e0bde05",
+      "name": "del human record"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "delete",
+        "container": {
+          "__rl": true,
+          "value": "humanSupportRequests",
+          "mode": "list",
+          "cachedResultName": "humanSupportRequests"
+        },
+        "item": {
+          "__rl": true,
+          "value": "={{ $json.userChatId }}",
+          "mode": "id"
+        },
+        "additionalFields": {
+          "partitionKey": "library"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        2760,
+        125
+      ],
+      "id": "e2a46b2e-959c-4fcd-bccc-0cb31fbda0e4",
+      "name": "Azure Cosmos DB1",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "query",
+        "container": {
+          "__rl": true,
+          "value": "humanSupportRequests",
+          "mode": "list",
+          "cachedResultName": "humanSupportRequests"
+        },
+        "query": "SELECT * FROM c WHERE c.id!='0' and c.status='active'",
+        "simple": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        375
+      ],
+      "id": "e197ac7c-7e14-42c9-8bc6-2e5cb56434e4",
+      "name": "Azure Cosmos DB2",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6c8c4d68-a013-408d-8727-5e643b4c2108",
+              "leftValue": "={{ $('When chat message received').item.json.sessionId }}",
+              "rightValue": "={{ $json.sessionId }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        340,
+        950
+      ],
+      "id": "49aafc0f-16aa-48f4-92fb-d9a75d1ffacf",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "content": "## Handle text\n",
+        "height": 300,
+        "width": 860,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        580
+      ],
+      "id": "6d3eb2c4-327a-4f28-b320-ba9dc0033beb",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Sign up user for the queue to find staff",
+        "height": 260,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2220,
+        575
+      ],
+      "id": "6b32458c-38ad-4439-ae8c-3e4dddda7219",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Staff command\n### /active - ready to connect\n### /off - go offline\n### /stop - disconnect with user\n",
+        "height": 640,
+        "width": 300,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        -55
+      ],
+      "id": "c0757392-1eec-4b91-aad5-45b0d743aeeb",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Check Input status",
+        "height": 300,
+        "width": 460,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        720,
+        580
+      ],
+      "id": "5269e34b-4167-4c95-aae9-60aceaa073c8",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Flip channel",
+        "height": 260,
+        "width": 840,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        275
+      ],
+      "id": "0a492c3a-0095-4e0e-bdcb-0c8ef9b31762",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Message Output",
+        "height": 960,
+        "width": 1140,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2280,
+        100
+      ],
+      "id": "e1977aac-273c-40c0-9aa0-223935a1d9c4",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## AI",
+        "height": 240,
+        "width": 280,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1790,
+        745
+      ],
+      "id": "fbd248b7-3c6d-44ac-b5a2-9e06c7743aed",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('del human record').item.json.humanChatId }}",
+        "text": "Disconnected",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2980,
+        125
+      ],
+      "id": "d0dbe2f3-964f-456a-91b4-c17fd85f5951",
+      "name": "Telegram1",
+      "webhookId": "4880013c-644c-4cf7-ac09-b57e5cbaf39d",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZE9wfX5obuQ89BSd",
+          "name": "Boaz Telegram "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const targetSessionId = $('Interacing').first().json.sessionId;\nconst interacingData = $('Interacing').first().json; // Store once for reuse\nconst inputItems = $input.all();\n\n// Find the matching item\nconst matchedItem = inputItems.find(item => {\n  return item.json.activeHumanRequestChatId === targetSessionId || \n         item.json.activeHumanChannel === targetSessionId;\n});\n\n// Return single output object with all required properties\nreturn [{\n  json: {\n    status: matchedItem ? \"active\" : \"notFound\",\n    chatInput: interacingData.chatInput,\n    channel: interacingData.channel,\n    sessionId: interacingData.sessionId\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        620
+      ],
+      "id": "4b8c0056-685e-498a-879a-8d7f9709e2b9",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputItems = $input.all();\nconst targetId = $('Interacing').first().json.sessionId;\n\n// Find the matching item (100% guaranteed to exist)\nconst matchedItem = inputItems.find(item => \n    item.json.userChatId === targetId || \n    item.json.humanChatId === targetId\n);\n\n// Determine which field matched and get the paired value\nconst isUserChatMatch = matchedItem.json.userChatId === targetId;\nconst pairedValue = isUserChatMatch ? matchedItem.json.humanChatId : matchedItem.json.userChatId;\n\n// Return only the required fields\nreturn [{\n    json: {\n        sessionId: targetId,\n        userChatId: isUserChatMatch ? targetId : pairedValue,\n        humanChatId: isUserChatMatch ? pairedValue: targetId,\n        channel: isUserChatMatch ? $input.first().json.channel:$input.first().json.channel\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        375
+      ],
+      "id": "3e01bc2d-40c5-436b-88da-95742f8db5b4",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "create",
+        "container": {
+          "__rl": true,
+          "value": "staff",
+          "mode": "list",
+          "cachedResultName": "staff"
+        },
+        "customProperties": "={\n\t\"id\": \"{{ $json.message.from.id }}\",\n    \"staffId\": \"staffstatus\",\n    \"status\": \"active\"\n} ",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        440
+      ],
+      "id": "22e0e90f-5921-4bd9-9c15-e14d877c5cbb",
+      "name": "Stop",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "UserWantFindStaff_____",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f75a7c8d-0dfd-4875-9453-bf51a3594bf9"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Staff"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ee605186-997b-4b69-aec3-66ba97913b0b",
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "UserWantCancelFindStaff_____",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cancel"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        2100,
+        825
+      ],
+      "id": "d99e58eb-9d65-4928-9fb8-3897ed920a3e",
+      "name": "Switch4"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "IlfihRcrDe7pwTVH",
+          "mode": "list",
+          "cachedResultName": "Sign up"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "channel": "={{ $json.channel }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2320,
+        675
+      ],
+      "id": "f659594a-0887-4886-9a00-2cf67f05b4e5",
+      "name": "Sign up"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "kIBaJ0lh5eOlt0z5",
+          "mode": "list",
+          "cachedResultName": "Cancel queue"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.sessionId }}",
+            "channel": "={{ $json.channel }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2320,
+        975
+      ],
+      "id": "28dd86ba-c925-4291-b89d-b279ace5d53f",
+      "name": "Cancel queue"
+    },
+    {
+      "parameters": {
+        "content": "## Cancel the queue",
+        "height": 240,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2220,
+        895
+      ],
+      "id": "98cfe7bc-f07c-4caa-9c29-9d5694e1c62c",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3e414cf6-9e01-4173-961a-0f5d044a680a",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            },
+            {
+              "id": "faf14640-fd50-42ad-aabd-8cffec1ba855",
+              "name": "userChatId",
+              "value": "={{ $json.userChatId }}",
+              "type": "string"
+            },
+            {
+              "id": "69458a87-99e2-45c0-a99d-2a4fd5b5243e",
+              "name": "humanChatId",
+              "value": "={{ $json.humanChatId }}",
+              "type": "string"
+            },
+            {
+              "id": "5ce16651-68ba-4a6d-93c7-ae42b8a900cb",
+              "name": "channel",
+              "value": "={{ $json.channel }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1880,
+        375
+      ],
+      "id": "cf93f53c-a862-4fbf-b835-ae8eb1a4cca9",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "content": "# Telegram",
+        "height": 260,
+        "width": 260,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1060,
+        220
+      ],
+      "id": "d54252a4-eee5-422c-802d-94385a2bc430",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "# Chat Input",
+        "height": 280,
+        "width": 260,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -840,
+        920
+      ],
+      "id": "851e0a8a-044d-4042-b48f-055225f4c784",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "## Polling",
+        "height": 240,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2910,
+        320
+      ],
+      "id": "1163b8be-990d-4182-8355-86c6cc71b984",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3e502029-9b94-4d48-83d1-c684d2e8074e",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2760,
+        325
+      ],
+      "id": "772ed6df-055e-409d-8df8-33ba58360b7f",
+      "name": "send value"
+    },
+    {
+      "parameters": {
+        "content": "## Telegram Output",
+        "height": 220,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2910,
+        590
+      ],
+      "id": "b78241bd-580d-451b-8626-dcebd01cf01f",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "## Chat Output",
+        "height": 220,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2910,
+        815
+      ],
+      "id": "be10f809-fdc2-4fbf-8de7-fb1721b75ce8",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.chatInput.trim() }}",
+                    "rightValue": "=-",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "4484b197-56e7-48ec-bb6b-5ed7fdd239e6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "polling"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "66b235c8-bc32-4b3c-b888-988360d7c846",
+                    "leftValue": "={{ $json.chatInput.trim() }}",
+                    "rightValue": "=User disconnected due to page refresh",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "userDisconnected"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "da0c3c59-2f70-4d86-8cd3-55ac96590ddb",
+                    "leftValue": "={{ $json.chatInput.trim() }}",
+                    "rightValue": "user_dislike_jor_nei_gor_answer",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "dislike"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "738f3ff3-3a74-4cf9-bd00-272730df544c",
+                    "leftValue": "={{ $json.chatInput.trim() }}",
+                    "rightValue": "User_like_jor_nei_gor_output",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "like"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -320,
+        1025
+      ],
+      "id": "a2d80c2e-9432-4fab-bb09-e4bd6677f615",
+      "name": "Switch5"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.humanChatId }}",
+        "text": "={{ $('Set Channel chatTrigger').item.json.chatInput }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        360,
+        1540
+      ],
+      "id": "a571bd73-ba14-4ae7-9e1b-8ab74782ca40",
+      "name": "Tell staff user disconnected",
+      "webhookId": "e7cd3ac8-77ff-4901-9790-501fc755821f",
+      "credentials": {
+        "telegramApi": {
+          "id": "ZE9wfX5obuQ89BSd",
+          "name": "Boaz Telegram "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Delete session record when user refresh page while waiting or connected",
+        "height": 460,
+        "width": 1320,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        1280
+      ],
+      "id": "24fb5b3a-38a5-42f5-a65d-97f6b50ff885",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "get",
+        "container": {
+          "__rl": true,
+          "value": "humanSupportRequests",
+          "mode": "list",
+          "cachedResultName": "humanSupportRequests"
+        },
+        "item": {
+          "__rl": true,
+          "value": "={{ $json.sessionId }}",
+          "mode": "id"
+        },
+        "additionalFields": {
+          "partitionKey": "library"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        1425
+      ],
+      "id": "7e8c8446-b7f5-4dbb-9a29-0d8686afa27e",
+      "name": "Get status of userChatId",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4b45643f-99aa-4335-80bb-e0bca48e91c9",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "waiting",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        120,
+        1425
+      ],
+      "id": "94f4923f-fc99-4b2b-949b-b6860e27edcc",
+      "name": "If waiting"
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "delete",
+        "container": {
+          "__rl": true,
+          "value": "humanSupportRequests",
+          "mode": "list",
+          "cachedResultName": "humanSupportRequests"
+        },
+        "item": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "additionalFields": {
+          "partitionKey": "library"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        340,
+        1325
+      ],
+      "id": "ccb2ed7a-032e-43a1-a231-57f1b95e5378",
+      "name": "Delete session record",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "item",
+        "operation": "update",
+        "container": {
+          "__rl": true,
+          "value": "staff",
+          "mode": "list",
+          "cachedResultName": "staff"
+        },
+        "item": {
+          "__rl": true,
+          "value": "={{ $json.result.chat.id }}",
+          "mode": "id"
+        },
+        "customProperties": "{\n  \"status\": \"active\"\n}",
+        "additionalFields": {
+          "partitionKey": "staffstatus"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.azureCosmosDb",
+      "typeVersion": 1,
+      "position": [
+        560,
+        1540
+      ],
+      "id": "dfdcedf7-55d6-4520-b5ff-022a721bbc55",
+      "name": "update staff status to active",
+      "credentials": {
+        "microsoftAzureCosmosDbSharedKeyApi": {
+          "id": "i5LK1fxoCkKGTRLX",
+          "name": "Microsoft Azure Cosmos DB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.botResponse }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        1800
+      ],
+      "id": "fb24b600-9804-4bea-b22d-57bb593a071b",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "workbook": {
+          "__rl": true,
+          "value": "01T7LE46MAGX7S7XBVZBDYC3V7LK2V6EYG",
+          "mode": "list",
+          "cachedResultName": "ITS_dislike_output",
+          "cachedResultUrl": "https://hkuhk-my.sharepoint.com/personal/boazits_hku_hk/_layouts/15/Doc.aspx?sourcedoc=%7B2FFF3580-35DC-47C8-816E-BF5AB55F1306%7D&file=ITS_dislike_output.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{D0C9874E-1DA5-4416-ADF4-5CC6C87ED504}",
+          "mode": "list",
+          "cachedResultName": "dislike",
+          "cachedResultUrl": "https://hkuhk-my.sharepoint.com/personal/boazits_hku_hk/_layouts/15/Doc.aspx?sourcedoc=%7B2FFF3580-35DC-47C8-816E-BF5AB55F1306%7D&file=ITS_dislike_output.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=dislike!A1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "{115EB2DE-73CB-4217-B74E-B4ADEFEFD623}",
+          "mode": "list",
+          "cachedResultName": "Table1",
+          "cachedResultUrl": "https://hkuhk-my.sharepoint.com/personal/boazits_hku_hk/_layouts/15/Doc.aspx?sourcedoc=%7B2FFF3580-35DC-47C8-816E-BF5AB55F1306%7D&file=ITS_dislike_output.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=Sheet1!A1:B2"
+        },
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "sessionId",
+              "fieldValue": "={{ $json.sessionId }}"
+            },
+            {
+              "column": "output",
+              "fieldValue": "={{ $json.data }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        1800
+      ],
+      "id": "e060782a-2ca8-404c-9764-2bcffe258f6f",
+      "name": "Microsoft Excel 365",
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "vESHj6bZpMWo79Va",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Record disliked outputs",
+        "height": 220,
+        "width": 1320,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        1740
+      ],
+      "id": "1dab8c2b-1eff-4685-9e16-bd5bb798cde9",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.botResponse }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        -120,
+        2000
+      ],
+      "id": "513255c8-0e76-4fb9-bc57-30ff0751ce3a",
+      "name": "Markdown1"
+    },
+    {
+      "parameters": {
+        "resource": "table",
+        "workbook": {
+          "__rl": true,
+          "value": "01T7LE46MAGX7S7XBVZBDYC3V7LK2V6EYG",
+          "mode": "list",
+          "cachedResultName": "ITS_dislike_output",
+          "cachedResultUrl": "https://hkuhk-my.sharepoint.com/personal/boazits_hku_hk/_layouts/15/Doc.aspx?sourcedoc=%7B2FFF3580-35DC-47C8-816E-BF5AB55F1306%7D&file=ITS_dislike_output.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1"
+        },
+        "worksheet": {
+          "__rl": true,
+          "value": "{C4B63917-9F07-476E-B888-8F676CDF44E3}",
+          "mode": "list",
+          "cachedResultName": "like",
+          "cachedResultUrl": "https://hkuhk-my.sharepoint.com/personal/boazits_hku_hk/_layouts/15/Doc.aspx?sourcedoc=%7B2FFF3580-35DC-47C8-816E-BF5AB55F1306%7D&file=ITS_dislike_output.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=like!A1"
+        },
+        "table": {
+          "__rl": true,
+          "value": "{928A9256-074D-40FF-B634-523EFF57F9A2}",
+          "mode": "list",
+          "cachedResultName": "Table14",
+          "cachedResultUrl": "https://hkuhk-my.sharepoint.com/personal/boazits_hku_hk/_layouts/15/Doc.aspx?sourcedoc=%7B2FFF3580-35DC-47C8-816E-BF5AB55F1306%7D&file=ITS_dislike_output.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&activeCell=like!A1:B2"
+        },
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "sessionId",
+              "fieldValue": "={{ $json.sessionId }}"
+            },
+            {
+              "column": "output",
+              "fieldValue": "={{ $json.data }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.microsoftExcel",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        2000
+      ],
+      "id": "0f7b6078-c1e8-465a-b0ee-06e977619a96",
+      "name": "Microsoft Excel 3651",
+      "credentials": {
+        "microsoftExcelOAuth2Api": {
+          "id": "vESHj6bZpMWo79Va",
+          "name": "Microsoft Excel account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Record liked outputs\n",
+        "height": 200,
+        "width": 1320,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        1960
+      ],
+      "id": "9dd7b9d5-ecef-474f-ba77-29aef0e5c9b0",
+      "name": "Sticky Note16"
+    }
+  ],
+  "pinData": {
+    "When chat message received": [
+      {
+        "json": {
+          "message": "user_dislike_jor_nei_gor_answer",
+          "botResponse": "<p>To connect to HKU WiFi, please follow these steps:</p>\n<ol>\n<li><strong>Select the HKU WiFi Network:</strong></li>\n</ol>\n<ul>\n<li>On your device, search for available wireless networks and select <em>“HKU”</em> or <em>“eduroam”</em>.</li>\n</ul>\n<ol>\n<li><strong>Login Credentials:</strong></li>\n</ol>\n<ul>\n<li>For “HKU”: Use your HKU Portal UID and PIN.</li>\n<li>For “eduroam”: Use your HKU email address (UID@hku.hk) and HKU Portal PIN.</li>\n</ul>\n<ol>\n<li><strong>Configuration:</strong></li>\n</ol>\n<ul>\n<li>If prompted, accept the security certificate.</li>\n<li>For “eduroam”, ensure your device is set to use WPA2-Enterprise with PEAP and MSCHAPv2.</li>\n</ul>\n<ol>\n<li><strong>Device Guides:</strong></li>\n</ol>\n<ul>\n<li>Detailed setup instructions for Windows, macOS, iOS, and Android are available on the ITS website.</li>\n</ul>\n<p><img src=\"https://www.its.hku.hk/sites/default/files/images/eduroam-setup-android-1.png\" alt=\"HKU WiFi Setup\" /></p>\n<p>For more details and device-specific guides, please visit the official HKU ITS WiFi connection page:<br />\n<a href=\"https://www.its.hku.hk/services/network/connect/wifi\" rel=\"noopener noreferrer\" target=\"_blank\">Connecting to HKU WiFi</a></p>\n<hr />\n<p><strong>This answer is AI-generated. Please verify with the official source if in doubt.</strong><br />\nFor further assistance, you can contact the ITS Service Desk at 3917 0123.<br />\nYou may also email your question to ITS through this chatbot.<br />\nSource: <a href=\"https://www.its.hku.hk/services/network/connect/wifi\" rel=\"noopener noreferrer\" target=\"_blank\">HKU ITS WiFi Connection</a></p>",
+          "sessionId": "session_c3cbtssu0vd"
+        }
+      }
+    ],
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 124571020,
+          "message": {
+            "message_id": 772,
+            "from": {
+              "id": 5578071642,
+              "is_bot": false,
+              "first_name": "jshdjd",
+              "last_name": "j s j s j s j",
+              "language_code": "en"
+            },
+            "chat": {
+              "id": 5578071642,
+              "first_name": "jshdjd",
+              "last_name": "j s j s j s j",
+              "type": "private"
+            },
+            "date": 1750839135,
+            "text": "/stop",
+            "entities": [
+              {
+                "offset": 0,
+                "length": 5,
+                "type": "bot_command"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "Switch4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Interacing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "transcribe-whisper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transcribe-whisper": {
+      "main": [
+        [
+          {
+            "node": "transcribed text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interacing": {
+      "main": [
+        [
+          {
+            "node": "Azure Cosmos DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transcribed text": {
+      "main": [
+        [
+          {
+            "node": "Interacing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Channel telegram": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Channel chatTrigger": {
+      "main": [
+        [
+          {
+            "node": "Switch5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gather Result": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure Cosmos DB": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Azure Cosmos DB2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetHumanAgentReply": {
+      "main": [
+        [
+          {
+            "node": "If message to chatTrigger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get message waiting": {
+      "main": [
+        [
+          {
+            "node": "HasMessage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HasMessage": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Output NoMessage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output NoMessage": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete the message": {
+      "main": [
+        [
+          {
+            "node": "Output message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If message to chatTrigger": {
+      "main": [
+        [
+          {
+            "node": "del human record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gather Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Set Channel chatTrigger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch3": {
+      "main": [
+        [
+          {
+            "node": "active",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "offline",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Channel telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Channel telegram1": {
+      "main": [
+        [
+          {
+            "node": "Interacing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "del human record": {
+      "main": [
+        [
+          {
+            "node": "Azure Cosmos DB1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "send value",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save the message for polling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure Cosmos DB2": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Delete the message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Output NoMessage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure Cosmos DB1": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stop": {
+      "main": [
+        [
+          {
+            "node": "Set Channel telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch4": {
+      "main": [
+        [
+          {
+            "node": "Sign up",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cancel queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gather Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign up": {
+      "main": [
+        [
+          {
+            "node": "Gather Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cancel queue": {
+      "main": [
+        [
+          {
+            "node": "Gather Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "SetHumanAgentReply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send value": {
+      "main": [
+        [
+          {
+            "node": "Save the message for polling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch5": {
+      "main": [
+        [
+          {
+            "node": "Get message waiting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get status of userChatId",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Markdown1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell staff user disconnected": {
+      "main": [
+        [
+          {
+            "node": "update staff status to active",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get status of userChatId": {
+      "main": [
+        [
+          {
+            "node": "If waiting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If waiting": {
+      "main": [
+        [
+          {
+            "node": "Delete session record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete session record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tell staff user disconnected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Microsoft Excel 365",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown1": {
+      "main": [
+        [
+          {
+            "node": "Microsoft Excel 3651",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "921e1cf5-0005-406b-aac3-a8e8b3856d52",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d18a2b686edcc77bb0a27337558b7504a2a88fa572b5e4ab60b7b0e419851af1"
+  },
+  "id": "waYWlvvPOSszVJL8",
+  "tags": []
+}
