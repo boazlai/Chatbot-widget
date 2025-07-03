@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HKU ITS Custom Virtual Assistant - Fullscreen</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+    />
+    <link rel="stylesheet" href="full_screen_styles.css" />
+  </head>
+  <body>
+    <!-- Main Chat Container -->
+    <div id="chatApp" class="chat-app">
+      <div class="header">
+        <div class="placeholder"></div>
+        <div class="header-content">
+          <h1>HKU ITS Chatbot</h1>
+        </div>
+        <div class="header-right">
+          <button
+            id="chatWithStaffButton"
+            class="header-button"
+            aria-label="Chat with ITS Staff"
+          >
+            Chat With Staff
+          </button>
+          <button
+            id="emailITSButton"
+            class="header-button"
+            aria-label="Email ITS Help Desk"
+          >
+            Email ITS
+          </button>
+        </div>
+      </div>
+      <div class="main-container">
+        <aside class="room-status-sidebar">
+          <div class="status-header">
+            <h2 id="statusTitle">Room Status</h2>
+            <div class="header-controls">
+              <span id="lastUpdateTime" class="last-update-time"
+                >Last updated: Just now</span
+              >
+              <button
+                id="sidebarToggle"
+                class="sidebar-toggle"
+                aria-label="Toggle sidebar"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  style="transform: rotate(180deg)"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6-6 6-1.41-1.41z"
+                  />
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div
+            class="book-now-container"
+            style="text-align: center; margin-bottom: 1rem"
+          >
+            <a
+              href="https://lib.hku.hk/hkulauth/legacy/authMain?uri=https://booking.lib.hku.hk/getpatron.aspx"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="book-now-btn"
+            >
+              Book Now
+            </a>
+          </div>
+          <div
+            class="library-selector"
+            style="display: flex; gap: 0.5rem; align-items: center"
+          >
+            <select id="librarySelect" aria-label="Select library">
+              <option value="chi-wah">Chi Wah</option>
+              <option value="main-library">Main Library</option>
+              <option value="medical-single">Medical Library (Single)</option>
+              <option value="medical-discussion">
+                Medical Library (Discussion)
+              </option>
+              <option value="law-library">Law Library</option>
+              <option value="music-library">Music Library</option>
+              <option value="dental-library">Dental Library</option>
+            </select>
+            <select id="libraryDateSelect" aria-label="Select date">
+              <option value="today"></option>
+              <option value="tomorrow"></option>
+            </select>
+            <script>
+              // Insert today's and tomorrow's date in YYYY-MM-DD format
+              const today = new Date();
+              const tomorrow = new Date();
+              tomorrow.setDate(today.getDate() + 1);
+              function pad(n) {
+                return n < 10 ? "0" + n : n;
+              }
+              const todayStr = `${today.getFullYear()}-${pad(
+                today.getMonth() + 1
+              )}-${pad(today.getDate())}`;
+              const tomorrowStr = `${tomorrow.getFullYear()}-${pad(
+                tomorrow.getMonth() + 1
+              )}-${pad(tomorrow.getDate())}`;
+              const dateSelect = document.getElementById("libraryDateSelect");
+              if (dateSelect) {
+                dateSelect.options[0].text = `${todayStr}`;
+                dateSelect.options[1].text = `${tomorrowStr}`;
+              }
+            </script>
+          </div>
+          <div id="roomStatusList">
+            <!-- Room status items will be dynamically added here -->
+          </div>
+        </aside>
+        <div class="chat-container">
+          <button
+            id="floatingToggle"
+            class="floating-toggle"
+            aria-label="Expand sidebar"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="white"
+                d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6-6 6-1.41-1.41z"
+              />
+            </svg>
+          </button>
+          <div class="messages" id="messageArea">
+            <!-- Messages will appear here -->
+          </div>
+          <div class="typing-indicator" id="typingIndicator">
+            <div class="dots">
+              <span>● </span><span>● </span><span>● </span>
+            </div>
+          </div>
+          <div class="connecting-indicator" id="connectingIndicator">
+            Connecting
+            <div class="dots">
+              <span>. </span><span>. </span><span>. </span>
+            </div>
+          </div>
+          <div class="input-area">
+            <div class="input-container">
+              <input
+                type="text"
+                id="userInput"
+                placeholder="Ask me anything..."
+                maxlength="500"
+                autocomplete="off"
+              />
+              <button id="sendButton" aria-label="Send message">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="full_screen_script.js"></script>
+  </body>
+</html>
