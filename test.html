@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HKU Chatbot Widget Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .test-section {
+        margin: 30px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: #f9f9f9;
+      }
+      .test-section h2 {
+        margin-top: 0;
+        color: #333;
+      }
+      .test-info {
+        background: #e8f4fd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+      }
+      .feature-list {
+        list-style-type: none;
+        padding: 0;
+      }
+      .feature-list li {
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .feature-list li:before {
+        content: '✓ ';
+        color: #4caf50;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>HKU Chatbot Widget - Comprehensive Test</h1>
+    <p>
+      This page tests all features of the HKU Chatbot Widget including the
+      enhanced polling/queueing system.
+    </p>
+
+    <div class="test-section">
+      <h2>🚀 Features Tested</h2>
+      <ul class="feature-list">
+        <li>Enhanced Markdown parsing (tables, lists, code blocks, etc.)</li>
+        <li>Suggestion buttons functionality</li>
+        <li>Smart scrolling behavior</li>
+        <li>Polling/Queueing system (restored from original widget)</li>
+        <li>Human staff message support</li>
+        <li>Queue position tracking</li>
+        <li>Connecting indicator</li>
+        <li>Session disconnect handling</li>
+        <li>Copy/edit message buttons (NOW RESTORED)</li>
+        <li>Like/dislike feedback (NOW RESTORED)</li>
+        <li>Message action buttons (NOW RESTORED)</li>
+        <li>sendMessageToBot functionality (NOW RESTORED)</li>
+      </ul>
+    </div>
+
+    <div class="test-section">
+      <h2>🔧 Major Fix Applied</h2>
+      <div class="test-info">
+        <strong>CRITICAL MISSING FEATURE RESTORED:</strong> Message Action
+        Buttons
+        <ul>
+          <li>
+            <strong>Copy Button:</strong> Copy messages to clipboard or input
+            field
+          </li>
+          <li>
+            <strong>Edit Button:</strong> Edit and resend user messages (uses
+            sendMessageToBot)
+          </li>
+          <li>
+            <strong>Like/Dislike:</strong> Send feedback to the bot backend
+          </li>
+          <li>
+            <strong>sendMessageToBot:</strong> Proper message sending during
+            queue/active chat
+          </li>
+        </ul>
+        <p>
+          <em
+            >These buttons appear when you hover over messages and were
+            completely missing from the TypeScript version!</em
+          >
+        </p>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🔄 Polling/Queueing System</h2>
+      <div class="test-info">
+        <strong>How to test the polling system:</strong>
+        <ol>
+          <li>
+            Send a message that triggers queue mode (e.g., "Chat with ITS
+            Staff")
+          </li>
+          <li>
+            Look for the "Please wait. Type 'Cancel' to cancel the queue"
+            message
+          </li>
+          <li>
+            The connecting indicator should appear and polling should start
+          </li>
+          <li>Queue position updates will be shown automatically</li>
+          <li>Type "Cancel" to exit the queue</li>
+          <li>
+            When staff connects, human messages will be displayed differently
+          </li>
+        </ol>
+      </div>
+
+      <div class="test-info">
+        <strong>Polling Features:</strong>
+        <ul>
+          <li>
+            <strong>Queue Position Tracking:</strong> Shows position updates
+            only when changed
+          </li>
+          <li>
+            <strong>Smart Polling:</strong> Polls every 1 second with "-"
+            message
+          </li>
+          <li>
+            <strong>Staff Detection:</strong> Automatically switches to human
+            message mode
+          </li>
+          <li>
+            <strong>Auto-Stop:</strong> Stops polling on "/stop", "Cancelled",
+            or disconnect
+          </li>
+          <li>
+            <strong>Session Protection:</strong> Warns before page refresh
+            during active session
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>📝 Markdown Features</h2>
+      <div class="test-info">
+        Try sending messages with markdown formatting:
+        <ul>
+          <li><code>**bold text**</code> or <code>__bold text__</code></li>
+          <li><code>*italic text*</code> or <code>_italic text_</code></li>
+          <li><code>`inline code`</code></li>
+          <li><code>```code block```</code></li>
+          <li><code>[link text](URL)</code></li>
+          <li><code>![alt text](image URL)</code></li>
+          <li>Lists, tables, blockquotes, headers</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="test-section">
+      <h2>🎯 Smart Scrolling</h2>
+      <div class="test-info">
+        <ul>
+          <li>
+            <strong>User messages:</strong> Scroll to show user message at top
+          </li>
+          <li>
+            <strong>Bot/Staff messages:</strong> Scroll to show related user
+            message at top for context
+          </li>
+          <li>
+            <strong>Suggestion buttons:</strong> Don't auto-scroll to keep them
+            visible
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Include the built widget -->
+    <script src="dist/chatbot-widget-final.js"></script>
+
+    <script>
+      // Initialize the widget after DOM is loaded
+      document.addEventListener('DOMContentLoaded', function () {
+        console.log('Available in window:', window.HKUChatbotWidget);
+
+        if (
+          window.HKUChatbotWidget &&
+          typeof window.HKUChatbotWidget === 'function'
+        ) {
+          // Create a new instance
+          const chatbot = new window.HKUChatbotWidget({
+            debug: true,
+            showWelcome: true,
+            position: 'bottom-right',
+          });
+          console.log('Chatbot widget initialized:', chatbot);
+
+          // Test polling system after a short delay
+          setTimeout(() => {
+            console.log(
+              'Widget ready for testing. Try messaging "Chat with ITS Staff" to test polling.'
+            );
+          }, 1000);
+        } else {
+          console.error(
+            'HKUChatbotWidget is not available or not a constructor'
+          );
+        }
+      });
+    </script>
+  </body>
+</html>

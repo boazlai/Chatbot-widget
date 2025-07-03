@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "None",
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "declaration": false
+  },
+  "include": ["src/chatbot-widget-final.ts"],
+  "exclude": ["src/chatbot-widget.ts", "src/chatbot-widget-clean.ts"]
+}

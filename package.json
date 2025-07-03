@@ -1,0 +1,15 @@
+{
+  "name": "hku-chatbot-widget",
+  "version": "1.0.0",
+  "description": "HKU Chatbot Widget TypeScript Project",
+  "main": "dist/chatbot-widget.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
